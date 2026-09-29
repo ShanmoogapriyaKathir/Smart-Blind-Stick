@@ -1,0 +1,97 @@
+// Smart Blind Stick
+// Components: Ultrasonic + Water Sensor + Grove Vibration Motor + Buzzer
+
+// Ultrasonic sensor
+#define TRIG_PIN 2
+#define ECHO_PIN 3
+
+// Water sensor
+#define WATER_PIN A0
+
+// Grove vibration motor
+#define VIBRATION_PIN 8
+
+// Active buzzer
+#define BUZZER_PIN 9
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  pinMode(VIBRATION_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  Serial.begin(9600);
+
+  digitalWrite(VIBRATION_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void loop() {
+
+  // -------------------------
+  // Ultrasonic measurement
+  // -------------------------
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH);
+
+  int distance = duration * 0.034 / 2;
+
+  // -------------------------
+  // Water sensor
+  // -------------------------
+  int waterValue = analogRead(WATER_PIN);
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.print(" cm | Water: ");
+  Serial.println(waterValue);
+
+  // -------------------------
+  // Obstacle detection
+  // -------------------------
+  if (distance > 0 && distance <= 50) {
+
+    // Obstacle detected
+    digitalWrite(VIBRATION_PIN, HIGH);
+    digitalWrite(BUZZER_PIN, HIGH);
+
+    delay(200);
+
+    digitalWrite(VIBRATION_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+
+    delay(200);
+  }
+
+  // -------------------------
+  // Water detection
+  // -------------------------
+  else if (waterValue > 500) {
+
+    // Water detected
+    digitalWrite(VIBRATION_PIN, HIGH);
+    digitalWrite(BUZZER_PIN, HIGH);
+
+    delay(500);
+
+    digitalWrite(VIBRATION_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+
+    delay(300);
+  }
+
+  else {
+    // Nothing detected
+    digitalWrite(VIBRATION_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+
+  delay(50);
+}
